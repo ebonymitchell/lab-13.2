@@ -82,5 +82,53 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+
+
+// PUT /api/books/:id - Update an existing book.
+router.put("/:id", async (req, res) => {
+    try {
+        // Find the book by ID and apply the requested updates.
+        const updatedBook = await Book.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true,
+                runValidators: true,
+            }
+        );
+
+        // Return HTTP 404 if the book does not exist.
+        if (!updatedBook) {
+            return res.status(404).json({
+                message: "Book not found.",
+            });
+        }
+
+        // Return the updated book.
+        return res.status(200).json(updatedBook);
+    } catch (error) {
+        // Handle invalid MongoDB ObjectIds.
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                message: "Invalid book ID or field value.",
+            });
+        }
+
+        // Handle validation errors and duplicate ISBN values.
+        if (error.name === "ValidationError" || error.code === 11000) {
+            return res.status(400).json({
+                message: error.message,
+            });
+        }
+
+        // Handle unexpected database errors.
+        console.error("Error updating book:", error.message);
+
+        return res.status(500).json({
+            message: "Failed to update book.",
+        });
+    }
+});
+
 // Export the router for use in server.js.
 export default router;
