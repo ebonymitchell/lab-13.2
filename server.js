@@ -1,15 +1,19 @@
 // Load environment variables from .env.
 import "dotenv/config";
 
-// Import Express and the database connection function.
+// Import Express, database connection, and book routes.
 import express from "express";
 import connectDB from "./db/connection.js";
+import bookRoutes from "./routes/bookRoutes.js";
 
 // Create the Express application.
 const app = express();
 
 // Enable JSON request body parsing.
 app.use(express.json());
+
+// Mount the book router under /api/books.
+app.use("/api/books", bookRoutes);
 
 // Define the server port.
 const PORT = process.env.PORT || 3001;
