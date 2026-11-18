@@ -50,5 +50,37 @@ router.get("/", async (req, res) => {
     }
 });
 
+// GET /api/books/:id - Retrieve a single book by ID.
+router.get("/:id", async (req, res) => {
+    try {
+        // Find the book using the ID from the URL.
+        const book = await Book.findById(req.params.id);
+
+        // Return HTTP 404 if the book does not exist.
+        if (!book) {
+            return res.status(404).json({
+                message: "Book not found.",
+            });
+        }
+
+        // Return the requested book.
+        return res.status(200).json(book);
+    } catch (error) {
+        // Handle invalid MongoDB ObjectIds.
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                message: "Invalid book ID.",
+            });
+        }
+
+        // Handle unexpected database errors.
+        console.error("Error retrieving book:", error.message);
+
+        return res.status(500).json({
+            message: "Failed to retrieve book.",
+        });
+    }
+});
+
 // Export the router for use in server.js.
 export default router;
