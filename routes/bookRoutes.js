@@ -130,5 +130,41 @@ router.put("/:id", async (req, res) => {
     }
 });
 
+
+ // DELETE /api/books/:id - Delete a book by ID.
+router.delete("/:id", async (req, res) => {
+  try {
+    // Find the book by ID and delete it from MongoDB.
+    const deletedBook = await Book.findByIdAndDelete(req.params.id);
+
+    // Return HTTP 404 if the book does not exist.
+    if (!deletedBook) {
+      return res.status(404).json({
+        message: "Book not found.",
+      });
+    }
+
+    // Confirm that the book was deleted.
+    return res.status(200).json({
+      message: "Book deleted successfully.",
+    });
+  } catch (error) {
+    // Handle invalid MongoDB ObjectIds.
+    if (error.name === "CastError") {
+      return res.status(400).json({
+        message: "Invalid book ID.",
+      });
+    }
+
+    // Handle unexpected database errors.
+    console.error("Error deleting book:", error.message);
+
+    return res.status(500).json({
+      message: "Failed to delete book.",
+    });
+  }
+});
+
+
 // Export the router for use in server.js.
 export default router;
